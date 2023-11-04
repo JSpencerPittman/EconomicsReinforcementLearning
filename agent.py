@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import random
 
 from time import sleep
 
@@ -16,12 +17,20 @@ class Agent:
     def __init__(self, hyper):
         self.hyper = hyper
 
-        self.policy_network = PolicyNetwork(input_size=1, output_size=2)
-        self.target_network = PolicyNetwork(input_size=1, output_size=2)
+        self.policy_network = PolicyNetwork(input_size=1, output_size=2).to(hyper.device)
+        self.target_network = PolicyNetwork(input_size=1, output_size=2).to(hyper.device)
+        self.target_network.load_state_dict(self.policy_network.state_dict())
         self.optimizer = optim.Adam(self.policy_network.parameters(), lr=0.01)
 
-    def select_action(self):
-        return torch.randint(0, 2, (1,)).item()
+    def select_action(self, state):
+        n = random.random()
+        if n < 0.5:
+            return torch.randint(0, 2, (1,))
+        else:
+            with torch.no_grad():
+                res = self.policy_network(state).max(1)[1].view(1,1)
+                print("SUGGESTED ACTION: ", res)
+                return res
     
     def optimize_model(self, memory):
         if len(memory) < 4:
@@ -29,13 +38,13 @@ class Agent:
         transitions = memory.sample(4)
 
         state_batch = torch.tensor([t.state for t in transitions], 
-                                   dtype=torch.float32).unsqueeze(1)
+                                   dtype=torch.float32, device=self.hyper.device).unsqueeze(1)
         action_batch = torch.tensor([t.action for t in transitions], 
-                                    dtype=torch.int64).unsqueeze(1)
+                                    dtype=torch.int64, device=self.hyper.device).unsqueeze(1)
         next_batch = torch.tensor([t.next_state for t in transitions], 
-                                    dtype=torch.float32).unsqueeze(1)
+                                    dtype=torch.float32, device=self.hyper.device).unsqueeze(1)
         reward_batch = torch.tensor([t.reward for t in transitions], 
-                                    dtype=torch.float32).unsqueeze(1)
+                                    dtype=torch.float32, device=self.hyper.device).unsqueeze(1)
         
         state_action_values = self.policy_network(state_batch).gather(1, action_batch)
         
@@ -52,5 +61,10 @@ class Agent:
         torch.nn.utils.clip_grad.clip_grad_value_(self.policy_network.parameters(), 100)
         self.optimizer.step()
 
-    def update_target_network(self, tau):
-        pass
+    def update_target_network(self):
+        target_net_state_dict = self.target_network.state_dict()
+        policy_net_state_dict = self.policy_network.state_dict()
+        for key in policy_net_state_dict:
+            target_net_state_dict[key] = policy_net_state_dict[key] * self.hyper.tau \
+                + target_net_state_dict[key] * (1-self.hyper.tau)
+        self.target_network.load_state_dict(target_net_state_dict)

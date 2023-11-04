@@ -1,3 +1,5 @@
+import torch
+
 class Environment:
     def __init__(self):
         self.state = [0]
@@ -7,7 +9,7 @@ class Environment:
         return self.state
 
     def step(self, action):
-        next_state = self.state.copy()
+        next_state = self.state
         rewards = []
         
         if action == 0:

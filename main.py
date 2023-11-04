@@ -5,7 +5,7 @@ from memory import ReplayMemory
 
 if __name__ == "__main__":
     # Initialize environment and agents
-    params = HyperParameters(episodes=10)
+    params = HyperParameters(episodes=100)
 
     environment = Environment()
     agent = Agent(params)
