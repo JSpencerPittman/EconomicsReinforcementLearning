@@ -1,11 +1,19 @@
 from environment import Environment
 from agent import Agent
-from train import train_agents
+from train import train_agent, HyperParameters
+from memory import ReplayMemory
 
 if __name__ == "__main__":
     # Initialize environment and agents
-    environment = Environment(num_agents=4)
-    agents = [Agent(environment) for _ in range(environment.num_agents)]
+    params = HyperParameters(episodes=10)
+
+    environment = Environment()
+    agent = Agent(params)
+    memory = ReplayMemory(10)
     
     # Train agents
-    train_agents(agents, environment)
+    res = train_agent(agent, environment, params, memory)
+
+    res = [v.item() for v in res]
+
+    print(res)
