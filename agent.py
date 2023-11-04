@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import random
+import math
 
 from time import sleep
 
@@ -20,16 +21,19 @@ class Agent:
         self.policy_network = PolicyNetwork(input_size=1, output_size=2).to(hyper.device)
         self.target_network = PolicyNetwork(input_size=1, output_size=2).to(hyper.device)
         self.target_network.load_state_dict(self.policy_network.state_dict())
-        self.optimizer = optim.Adam(self.policy_network.parameters(), lr=0.01)
+        self.optimizer = optim.Adam(self.policy_network.parameters(), lr=hyper.learning_rate)
+        self.steps_done = 0
 
     def select_action(self, state):
         n = random.random()
-        if n < 0.5:
+        eps_threshold = self.hyper.eps_start + (self.hyper.eps_end - self.hyper.eps_start) * \
+            math.exp(-1 * self.steps_done / self.hyper.eps_decay)
+        self.steps_done += 1
+        if n < eps_threshold:
             return torch.randint(0, 2, (1,))
         else:
             with torch.no_grad():
                 res = self.policy_network(state).max(1)[1].view(1,1)
-                print("SUGGESTED ACTION: ", res)
                 return res
     
     def optimize_model(self, memory):
