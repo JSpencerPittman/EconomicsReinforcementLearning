@@ -5,15 +5,11 @@ from memory import ReplayMemory
 
 if __name__ == "__main__":
     # Initialize environment and agents
-    params = HyperParameters(episodes=100)
+    params = HyperParameters(episodes=300, batch_size=16, eps_decay=4000, gamma=0.9, learning_rate=1e-3)
 
     environment = Environment()
     agent = Agent(params)
-    memory = ReplayMemory(10)
+    memory = ReplayMemory(1000)
     
     # Train agents
     res = train_agent(agent, environment, params, memory)
-
-    res = [v.item() for v in res]
-
-    print(res)
