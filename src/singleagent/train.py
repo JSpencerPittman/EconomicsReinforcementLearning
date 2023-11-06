@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 import numpy as np
 
-from singleagent.agent import Agent
-from singleagent.environment import Environment
+from singleagent.agent import SingleAgent
 from singleagent.memory import ReplayMemory, Transition
+from singleagent.environment import Environment
+
 
 class HyperParameters(object):
     def __init__(self, 
@@ -77,22 +78,17 @@ def plot_progress(states, exploit, explore, policy_net, hyper, i_episode=-1, sho
 
     plt.pause(1)
 
-def train_agent(agent: Agent, environment: Environment, hyper: HyperParameters, memory: ReplayMemory):
+def train_agent(agent: SingleAgent, environment: Environment, hyper: HyperParameters, memory: ReplayMemory):
     results = list()
-
-    willing_work, willing_sleep = 0, 0
 
     for i_episode in range(hyper.episodes):  # Number of episodes
         state = environment.reset()
         state = torch.tensor(state, dtype=torch.float32, device=hyper.device).unsqueeze(0)
 
         for t in range(100):
-            action = agent.select_action(state)
+            print(t)
 
-            if action.item() == 0:
-                willing_work += 1
-            else:
-                willing_sleep += 1
+            action = agent.select_action(state)
 
             next_state, rewards = environment.step(action)
             rewards = torch.tensor(rewards, device=hyper.device)
@@ -108,13 +104,6 @@ def train_agent(agent: Agent, environment: Environment, hyper: HyperParameters, 
             agent.update_target_network()
 
         results.append(state.item())
-
-        if i_episode % 30 == 0:
-            plot_progress(results, agent.exploit, agent.explore, agent.policy_network, hyper, i_episode=i_episode)
-
-    plot_progress(results, agent.exploit, agent.explore, agent.policy_network, hyper, show_result=True)
-    plt.ioff()
-    plt.show()
 
     return results
 

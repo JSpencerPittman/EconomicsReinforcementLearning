@@ -1,4 +1,4 @@
-from singleagent.environment import Environment
+from example.environment import Environment
 from singleagent.agent import Agent
 from singleagent.train import train_agent, HyperParameters
 from singleagent.memory import ReplayMemory
