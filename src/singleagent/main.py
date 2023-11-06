@@ -1,7 +1,7 @@
-from environment import Environment
-from agent import Agent
-from train import train_agent, HyperParameters
-from memory import ReplayMemory
+from singleagent.environment import Environment
+from singleagent.agent import Agent
+from singleagent.train import train_agent, HyperParameters
+from singleagent.memory import ReplayMemory
 
 if __name__ == "__main__":
     # Initialize environment and agents

@@ -1,2 +1,4 @@
 # Virtual Environment
 env
+__pycache__
+*.egg-info

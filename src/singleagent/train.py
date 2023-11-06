@@ -3,11 +3,9 @@ import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 import numpy as np
 
-from agent import Agent
-from environment import Environment
-from memory import ReplayMemory, Transition
-
-from time import sleep
+from singleagent.agent import Agent
+from singleagent.environment import Environment
+from singleagent.memory import ReplayMemory, Transition
 
 class HyperParameters(object):
     def __init__(self, 
@@ -28,28 +26,6 @@ class HyperParameters(object):
         self.eps_decay = eps_decay
         self.learning_rate = learning_rate
         self.batch_size = batch_size
-
-
-def plot_preference(network, hyper, i_episode=-1, show_result=False):
-    states = np.array([i*10 for i in range(10)])
-    states_gpu = torch.tensor(states, dtype=torch.float32, device=hyper.device).unsqueeze(1)
-    
-    with torch.no_grad():
-        preferences = network(states_gpu).cpu().numpy()
-
-    fig = plt.figure(2, clear=True, figsize=(8,4))
-
-    if show_result:
-        plt.title('Preference: Completed')
-    else:
-        plt.title(f'Preference: Training({i_episode})')
-
-    plt.bar(states, preferences[:,0], width=2, label="Work")
-    plt.bar(states+2, preferences[:,1], width=2, label="Sleep")
-    plt.xticks(states)
-    plt.legend()
-
-    plt.pause(0.1)
 
 def plot_progress(states, exploit, explore, policy_net, hyper, i_episode=-1, show_result=False):
     fig = plt.figure(1, clear=True, figsize=(12,10))
