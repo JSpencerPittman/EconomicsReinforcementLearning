@@ -1,7 +1,8 @@
 from example.environment import Environment
 from singleagent.agent import Agent
-from singleagent.train import train_agent, HyperParameters
+from singleagent.train import train_agent
 from singleagent.memory import ReplayMemory
+from singleagent.params import HyperParameters
 
 if __name__ == "__main__":
     # Initialize environment and agents

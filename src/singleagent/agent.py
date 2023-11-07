@@ -5,6 +5,8 @@ import random
 import math
 
 from singleagent.memory import ReplayMemory
+from singleagent.params import HyperParameters
+from singleagent.environment import Environment
 
 class PolicyNetwork(nn.Module):
     def __init__(self, input_size, output_size):
@@ -17,7 +19,7 @@ class PolicyNetwork(nn.Module):
         return self.output_layer(x)
 
 class SingleAgent:
-    def __init__(self, environment, hyper):
+    def __init__(self, environment: Environment, hyper: HyperParameters):
         self.hyper = hyper
         self.environment = environment
 
@@ -61,7 +63,7 @@ class SingleAgent:
                 self.exploit_actions[res] += 1
                 return res
     
-    def optimize_model(self, memory: ReplayMemory):
+    def optimize_policy(self, memory: ReplayMemory):
         """
         Update the policy network
 
@@ -107,7 +109,7 @@ class SingleAgent:
         # Update policy_networks weights using calculated gradients
         self.optimizer.step()
 
-    def update_target_network(self):
+    def optimize_target(self):
         # Get current weights
         target_net_state_dict = self.target_network.state_dict()
         policy_net_state_dict = self.policy_network.state_dict()
