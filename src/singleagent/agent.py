@@ -4,9 +4,7 @@ import torch.optim as optim
 import random
 import math
 
-from singleagent.memory import ReplayMemory
-from singleagent.params import HyperParameters
-from singleagent.environment import Environment
+from singleagent.utils import ( ReplayMemory, HyperParameters, Environment )
 
 class PolicyNetwork(nn.Module):
     def __init__(self, input_size, output_size):

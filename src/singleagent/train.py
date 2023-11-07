@@ -1,13 +1,13 @@
 import torch
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
-import numpy as np
 
 from singleagent.agent import SingleAgent
-from singleagent.memory import ReplayMemory, Transition
-from singleagent.environment import Environment
-from singleagent.params import HyperParameters
-from singleagent.plot import Plotter
+from singleagent.utils import ( ReplayMemory, 
+                                Transition, 
+                                Environment,
+                                HyperParameters,
+                                Plotter )
 
 def train_agent(agent: SingleAgent, environment: Environment, hyper: HyperParameters, memory: ReplayMemory, plotter: Plotter):
     results = list()

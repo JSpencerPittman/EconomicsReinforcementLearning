@@ -1,7 +1,9 @@
-from singleagent.environment import Environment
-from singleagent.plug import RLPlug
-from singleagent.train import HyperParameters
-from singleagent.plot import Plotter
+from singleagent.train import train_agent
+from singleagent.agent import SingleAgent
+from singleagent.utils import ( Environment,
+                                HyperParameters,
+                                ReplayMemory,
+                                Plotter )
 from enum import Enum
 from scipy.signal import savgol_filter
 import numpy as np
@@ -34,15 +36,6 @@ class WorkOrSleep(Environment):
         self.state = next_state
 
         return next_state, rewards
-
-params = HyperParameters(episodes=100, 
-                         steps=10,
-                         batch_size=16, 
-                         eps_decay=4000, 
-                         gamma=0.9, 
-                         learning_rate=1e-3)
-
-environment = WorkOrSleep(Actions)
 
 def plot_progress(states, exploits, explores, policy_net, hyper, i_episode, show_result):
     fig = plt.figure(1, clear=True, figsize=(12,10))
@@ -94,8 +87,16 @@ def plot_progress(states, exploits, explores, policy_net, hyper, i_episode, show
 
     plt.pause(1)
 
+params = HyperParameters(episodes=100, 
+                         steps=10,
+                         batch_size=16, 
+                         eps_decay=4000, 
+                         gamma=0.9, 
+                         learning_rate=1e-3)
+environment = WorkOrSleep(Actions)
 plotter = Plotter(plot_progress)
+agent = SingleAgent(environment, params)
+memory = ReplayMemory(1000)
 
-plug = RLPlug(environment, params, plotter)
-print(plug.train())
+print(train_agent(agent, environment, params, memory, plotter))
 
