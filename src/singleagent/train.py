@@ -22,7 +22,7 @@ def train_agent(agent: SingleAgent, environment: Environment, hyper: HyperParame
             action = agent.select_action(state)
 
             # Impact of action on the enviromnet and corresponding reward
-            next_state, rewards = environment.step(action.item())
+            next_state, rewards = environment.step(action.tolist())
 
             # Make pytorch friendly
             rewards = torch.tensor(rewards, device=hyper.device)
@@ -42,7 +42,7 @@ def train_agent(agent: SingleAgent, environment: Environment, hyper: HyperParame
             agent.optimize_target()
 
         # Save end state of episode to results
-        results.append(state.item())
+        results.append(rewards)
 
         # Plot results of episode
         plotter.plot(results,

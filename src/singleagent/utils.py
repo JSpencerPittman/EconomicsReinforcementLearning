@@ -5,9 +5,10 @@ import random
 import torch
 
 class Environment(ABC):
-    def __init__(self, actions: Enum):
-        self.actions = actions
+    def __init__(self):
         self.state = list()
+        self.state_dim = 0
+        self.n_actions = 0
 
     @abstractmethod
     def reset(self):

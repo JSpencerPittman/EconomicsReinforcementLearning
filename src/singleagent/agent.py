@@ -21,8 +21,8 @@ class SingleAgent:
         self.hyper = hyper
         self.environment = environment
 
-        self.state_dim = len(environment.state)
-        self.n_actions = len(environment.actions)
+        self.state_dim = environment.state_dim
+        self.n_actions = environment.n_actions
 
         self.policy_network = PolicyNetwork(input_size=self.state_dim, output_size=self.n_actions).to(hyper.device)
         self.target_network = PolicyNetwork(input_size=self.state_dim, output_size=self.n_actions).to(hyper.device)
@@ -41,7 +41,7 @@ class SingleAgent:
 
         state: current state of the system
         """
-
+        print(state)
         x = random.random()
         eps_threshold = self.hyper.eps_end + (self.hyper.eps_start - self.hyper.eps_end) * \
             math.exp(-1 * self.steps_done / self.hyper.eps_decay)
@@ -49,17 +49,21 @@ class SingleAgent:
         self.steps_done += 1
         
         # Explore
-        if x < eps_threshold:
-            res = torch.randint(0, self.n_actions, (1,))
-            self.explore_actions[res] += 1
-            return res
+        if x < 0.001:
+            actions = torch.randperm(self.n_actions)[:10]
+            print("ACTIONS: ", actions)
+            onehot = torch.zeros(self.n_actions)
+            for action in actions:
+                onehot[action] = 1
+            return onehot
         # Exploit
         else:
             with torch.no_grad():
                 # Choose the action that has the highest Q-value
-                res = self.policy_network(state).max(1)[1].view(1,1)
-                self.exploit_actions[res] += 1
-                return res
+                qvals = self.policy_network(state)
+                kthval = qvals.view(-1).kthvalue(self.n_actions-10+1).values
+                action_mask = (qvals >= kthval).int()
+                return action_mask
     
     def optimize_policy(self, memory: ReplayMemory):
         """
